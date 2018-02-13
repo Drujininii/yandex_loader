@@ -1,0 +1,30 @@
+{
+  "name": "yandex_loader",
+  "version": "1.0.0",
+  "presets": [
+    "es6"
+  ],
+  "description": "loader",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server/server.js",
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Drujininii/yandex_loader.git"
+  },
+  "author": "Igor Drujinin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Drujininii/yandex_loader/issues"
+  },
+  "homepage": "https://github.com/Drujininii/yandex_loader#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "webpack": "^3.11.0"
+  }
+}
