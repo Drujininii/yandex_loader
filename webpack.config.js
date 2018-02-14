@@ -1,11 +1,9 @@
 'use strict';
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const NODE_ENV = process.env.NODE_ENV || 'development';
+const NODE_ENV = process.env.NODE_ENV || 'product';
 
-const extractPlugin = new ExtractTextPlugin({
-	filename: '[name].css',
-});
+const extractPlugin = new ExtractTextPlugin('[name].css');
 
 module.exports = {
 	context: __dirname + '/develop',
@@ -28,17 +26,10 @@ module.exports = {
 			loader: 'babel-loader',
 		}, {
 			test: /\.scss$/,
-			use: [{
-				loader: 'style-loader'
-			}, {
-				loader: 'css-loader', options: {
-					sourceMap: true
-				}
-			}, {
-				loader: 'sass-loader', options: {
-					sourceMap: true
-				}
-			}]
+			use: ExtractTextPlugin.extract({
+				fallback: 'style-loader',
+				use: ['css-loader', 'sass-loader']
+			})
 		}, {
 			test: /\.css$/,
 			use: ExtractTextPlugin.extract({
