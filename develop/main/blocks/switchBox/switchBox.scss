@@ -1,7 +1,20 @@
-.switchBox{
+.switchBoxContainer{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: auto;
+}
+
+.switchBox__name {
+  display: inline;
+  padding-left: 10px;
+}
+
+.switchBox__input{
   & + .switchBox__label {
-    font-family: "Abyssinica SIL";
-    background-color: #e74c3c;
+    font-family: "ro";
+    background-color: gray;
     border: 1px solid #ccc;
     border-radius: 20px;
     cursor: pointer;
@@ -23,7 +36,7 @@
     }
   }
   &:checked {
-    & + .switchbox {
+    & + .switchBox__label {
       background-color: #2ecc71;
       &:after {
         right: 0%;

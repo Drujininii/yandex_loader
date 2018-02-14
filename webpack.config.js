@@ -1,7 +1,7 @@
 'use strict';
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const NODE_ENV = process.env.NODE_ENV || 'product';
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
 const extractPlugin = new ExtractTextPlugin('[name].css');
 
@@ -38,7 +38,11 @@ module.exports = {
 					loader: 'css-loader',
 				},
 			})
-		}
+		},
+			{
+				test: /\.(ttf)$/,
+				loader: 'url-loader?limit=30000&name=./[name].[ext]',
+			},
 		],
 	},
 	plugins: [

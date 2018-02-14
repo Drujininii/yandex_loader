@@ -12,7 +12,7 @@ import InnerBlock from './blocks/innerBlock/innerBlock';
 
 new class main {
 	constructor() {
-		const app = InnerBlock.create('main', {}, 'app');
+		const app = InnerBlock.create('main', {}, ['app']);
 		document.body.appendChild(app.el);
 		app.append(loaderModule);
 	}

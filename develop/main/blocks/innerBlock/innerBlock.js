@@ -56,8 +56,7 @@ export default class Block {
 	 */
 	hide() {
 		this.hidden = true;
-		this.el.classList.add('main_hidden');
-		this.el.setAttribute('hidden', 'true');
+		this.el.classList.add('blocks_hidden');
 	}
 
 	/**
@@ -65,8 +64,7 @@ export default class Block {
 	 */
 	show() {
 		this.hidden = false;
-		this.el.removeAttribute('hidden');
-		this.el.classList.remove('main_hidden');
+		this.el.classList.remove('blocks_hidden');
 	}
 
 	/**

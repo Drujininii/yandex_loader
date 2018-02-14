@@ -1,9 +1,15 @@
 'use strict';
 
+const express = require('express'); // Веб-фреймворк
 
-const http = require('http');
+const bodyParser = require('body-parser'); // Парсер для тела запроса
 
-http.createServer(function (req, res) {
-	res.writeHead(200, {'Content-Type': 'text/html'});
-	res.end('Hello World!');
-}).listen(3000);
+const app = express();
+
+app.use(express.static('./public'));
+
+app.use(bodyParser.json()); // С помощью какой-то древней магии парсит тело запроса,
+
+app.listen(process.env.PORT || 3000, function () {
+	console.log('Server run!');
+});

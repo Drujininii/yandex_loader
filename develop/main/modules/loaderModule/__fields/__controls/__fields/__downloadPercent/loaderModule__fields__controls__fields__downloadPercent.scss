@@ -1,0 +1,25 @@
+.loaderModule__controls__downloadPercent__container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    width: auto;
+}
+
+.loaderModule__controls__downloadPercent__text {
+  display: inline;
+  padding-left: 10px;
+}
+
+.loaderModule__controls__downloadPercent__input {
+  text-align: center;
+  display: inline-block;
+  cursor: pointer;
+  height: 30px;
+  width: 60px;
+  overflow: hidden;
+  border-radius: 20px;
+  border: 1px solid grey;
+  padding: 0;
+  outline: none;
+}

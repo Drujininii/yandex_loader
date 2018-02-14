@@ -127,8 +127,7 @@ class Block {
   */
 	hide() {
 		this.hidden = true;
-		this.el.classList.add('main_hidden');
-		this.el.setAttribute('hidden', 'true');
+		this.el.classList.add('blocks_hidden');
 	}
 
 	/**
@@ -136,8 +135,7 @@ class Block {
   */
 	show() {
 		this.hidden = false;
-		this.el.removeAttribute('hidden');
-		this.el.classList.remove('main_hidden');
+		this.el.classList.remove('blocks_hidden');
 	}
 
 	/**
@@ -225,8 +223,8 @@ function requireAll(r) {
 }
 
 requireAll(__webpack_require__(9));
-requireAll(__webpack_require__(11));
-requireAll(__webpack_require__(15));
+requireAll(__webpack_require__(12));
+requireAll(__webpack_require__(20));
 
 /***/ }),
 /* 3 */
@@ -235,16 +233,34 @@ requireAll(__webpack_require__(15));
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__innerBlock_innerBlock__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__modules_eventBus_eventBus__ = __webpack_require__(1);
+
 
 
 
 
 class Loader extends __WEBPACK_IMPORTED_MODULE_0__innerBlock_innerBlock__["default"] {
-	constructor(classes) {
+	constructor(...classes) {
 		classes = classes || [];
-		classes.append('loader');
+		classes.push('loader');
+		console.log('classes: ', classes);
 		const loader = __WEBPACK_IMPORTED_MODULE_0__innerBlock_innerBlock__["default"].create('div', {}, classes);
 		super(loader.el);
+
+		this.onHide();
+		this.onShow();
+	}
+
+	onHide() {
+		__WEBPACK_IMPORTED_MODULE_1__modules_eventBus_eventBus__["default"].on('hideLoader', () => {
+			this.hide();
+		});
+	}
+
+	onShow() {
+		__WEBPACK_IMPORTED_MODULE_1__modules_eventBus_eventBus__["default"].on('showLoader', () => {
+			this.show();
+		});
 	}
 }
 /* harmony export (immutable) */ __webpack_exports__["default"] = Loader;
@@ -262,25 +278,31 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 class SwitchButton extends __WEBPACK_IMPORTED_MODULE_0__innerBlock_innerBlock__["default"] {
-	constructor(classes) {
+	constructor(classes, name, id) {
 		classes = classes || [];
-		classes.append('switchBoxContainer');
+		classes.push('switchBoxContainer');
 		const switchBoxContainer = __WEBPACK_IMPORTED_MODULE_0__innerBlock_innerBlock__["default"].create('div', {}, classes);
 		super(switchBoxContainer.el);
-		this.createSwitchBox();
+		this.createSwitchBox(name, id);
 	}
 
-	createSwitchBox() {
+	createSwitchBox(name, id) {
 		const switchBoxInput = __WEBPACK_IMPORTED_MODULE_0__innerBlock_innerBlock__["default"].create('input', {
-			'id': 'checkbox',
+			'id': `${id}`,
 			'type': 'checkbox'
-		}, ['switchBox__input']);
+		}, ['switchBox__input', 'blocks_no_display']);
 
 		const switchBoxLabel = __WEBPACK_IMPORTED_MODULE_0__innerBlock_innerBlock__["default"].create('label', {
-			'for': 'checkbox'
+			'for': `${id}`
 		}, ['switchBox__label']);
 
-		this.append(switchBoxInput).append(switchBoxLabel);
+		const switchBoxButton = __WEBPACK_IMPORTED_MODULE_0__innerBlock_innerBlock__["default"].create('div', {}, ['switchBox__button']);
+
+		switchBoxButton.append(switchBoxInput).append(switchBoxLabel);
+
+		const switchBoxName = __WEBPACK_IMPORTED_MODULE_0__innerBlock_innerBlock__["default"].create('div', {}, ['switchBox__name'], `${name}`);
+
+		this.append(switchBoxButton).append(switchBoxName);
 	}
 }
 /* harmony export (immutable) */ __webpack_exports__["default"] = SwitchButton;
@@ -301,9 +323,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /* harmony default export */ __webpack_exports__["default"] = (new class LoaderModule extends __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"] {
 	constructor() {
-		const LoaderModule = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('div', {}, 'LoaderModule');
-		for (let field of __WEBPACK_IMPORTED_MODULE_1__fields_loaderModule_fields__["default"]) LoaderModule.append(field);
-		super(LoaderModule.el);
+		const loaderModule = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('div', {}, ['loaderModule']);
+		console.log('loader fields: ', __WEBPACK_IMPORTED_MODULE_1__fields_loaderModule_fields__["default"]);
+		for (let field in __WEBPACK_IMPORTED_MODULE_1__fields_loaderModule_fields__["default"]) loaderModule.append(__WEBPACK_IMPORTED_MODULE_1__fields_loaderModule_fields__["default"][field]);
+		super(loaderModule.el);
 	}
 }());
 
@@ -319,8 +342,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 const loaderModule__fields = {
-	loader: new __WEBPACK_IMPORTED_MODULE_0__blocks_loader_loader__["default"]('loaderModule__loader'),
-	controls: __WEBPACK_IMPORTED_MODULE_1__controls_loaderModule_fields_controls__["default"]
+	loader: new __WEBPACK_IMPORTED_MODULE_0__blocks_loader_loader__["default"](['loaderModule__loader', 'loaderModule__fields']),
+	controls: new __WEBPACK_IMPORTED_MODULE_1__controls_loaderModule_fields_controls__["default"]()
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (loaderModule__fields);
@@ -331,7 +354,7 @@ const loaderModule__fields = {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__fields_loaderModule_fileds_controls_fields__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__fields_loaderModule_fields_controls_fields__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__blocks_innerBlock_innerBlock__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__eventBus_eventBus__ = __webpack_require__(1);
 
@@ -342,34 +365,34 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 class loaderModule__controls extends __WEBPACK_IMPORTED_MODULE_1__blocks_innerBlock_innerBlock__["default"] {
 	constructor() {
-		const controls = __WEBPACK_IMPORTED_MODULE_1__blocks_innerBlock_innerBlock__["default"].create('div', {}, ['loaderModule__controls']);
-		for (let field of __WEBPACK_IMPORTED_MODULE_0__fields_loaderModule_fileds_controls_fields__["default"]) {
-			controls.append(field);
+		const controls = __WEBPACK_IMPORTED_MODULE_1__blocks_innerBlock_innerBlock__["default"].create('div', {}, ['loaderModule__controls', 'loaderModule__fields']);
+		for (let field in __WEBPACK_IMPORTED_MODULE_0__fields_loaderModule_fields_controls_fields__["default"]) {
+			controls.append(__WEBPACK_IMPORTED_MODULE_0__fields_loaderModule_fields_controls_fields__["default"][field]);
 		}
 		super(controls.el);
 
 		this.tapSwitchAnimation();
 		this.tapSwitchHide();
-		this.setDownloadPercent();
 	}
 
 	tapSwitchAnimation() {
-		__WEBPACK_IMPORTED_MODULE_0__fields_loaderModule_fileds_controls_fields__["default"].switchAnimation.on('click', () => {
+		__WEBPACK_IMPORTED_MODULE_0__fields_loaderModule_fields_controls_fields__["default"].switchAnimation.on('click', () => {
 			__WEBPACK_IMPORTED_MODULE_2__eventBus_eventBus__["default"].emit('switchLoaderAnimation');
 		});
 	}
 
 	tapSwitchHide() {
-		__WEBPACK_IMPORTED_MODULE_0__fields_loaderModule_fileds_controls_fields__["default"].switchHide.on('click', () => {
-			__WEBPACK_IMPORTED_MODULE_2__eventBus_eventBus__["default"].emit('switchLoaderHide');
+		__WEBPACK_IMPORTED_MODULE_0__fields_loaderModule_fields_controls_fields__["default"].switchHide.on('click', () => {
+			const isHide = document.getElementById('switchHide').checked;
+			if (isHide) __WEBPACK_IMPORTED_MODULE_2__eventBus_eventBus__["default"].emit('hideLoader');else __WEBPACK_IMPORTED_MODULE_2__eventBus_eventBus__["default"].emit('showLoader');
 		});
 	}
 
-	setDownloadPercent() {
-		__WEBPACK_IMPORTED_MODULE_0__fields_loaderModule_fileds_controls_fields__["default"].on('onchange', () => {
-			alert('new value');
-		});
-	}
+	// setDownloadPercent() {
+	// 	controls__fields.downloadPercent.on('onchange', () => {
+	// 		alert('new value');
+	// 	})
+	// }
 }
 /* harmony export (immutable) */ __webpack_exports__["default"] = loaderModule__controls;
 
@@ -381,14 +404,14 @@ class loaderModule__controls extends __WEBPACK_IMPORTED_MODULE_1__blocks_innerBl
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__blocks_switchBox_switchBox__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__blocks_innerBlock_innerBlock__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__downloadPercent_loaderModule_fields_controls_fields_downloadPercent__ = __webpack_require__(11);
 
 
 
 const loaderModule__controls__fields = {
-	switchAnimation: new __WEBPACK_IMPORTED_MODULE_0__blocks_switchBox_switchBox__["default"](['loaderModule__controls__switchBox', 'loaderModule__controls__switchAnimation']),
-	switchHide: new __WEBPACK_IMPORTED_MODULE_0__blocks_switchBox_switchBox__["default"](['loaderModule__controls__switchBox', 'loaderModule__controls__switchHide']),
-	downloadPercent: __WEBPACK_IMPORTED_MODULE_1__blocks_innerBlock_innerBlock__["default"].create('input', { 'type': 'text' }, ['loaderModule__controls__downloadPercent'])
+	switchAnimation: new __WEBPACK_IMPORTED_MODULE_0__blocks_switchBox_switchBox__["default"](['loaderModule__controls__switchBox', 'loaderModule__controls__switchAnimation'], 'Animate', 'switchAnimation'),
+	switchHide: new __WEBPACK_IMPORTED_MODULE_0__blocks_switchBox_switchBox__["default"](['loaderModule__controls__switchBox', 'loaderModule__controls__switchHide'], 'Hide', 'switchHide'),
+	downloadPercent: new __WEBPACK_IMPORTED_MODULE_1__downloadPercent_loaderModule_fields_controls_fields_downloadPercent__["default"]('Value')
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (loaderModule__controls__fields);
@@ -398,16 +421,17 @@ const loaderModule__controls__fields = {
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./blocks/innerBlock/innerBlock.js": 0,
-	"./blocks/loader/loader.js": 3,
-	"./blocks/switchBox/switchBox.js": 4,
 	"./include.js": 2,
-	"./main.js": 10,
-	"./modules/eventBus/eventBus.js": 1,
-	"./modules/loaderModule/__fields/__controls/__fields/loaderModule__fileds__controls__fields.js": 8,
-	"./modules/loaderModule/__fields/__controls/loaderModule__fields__controls.js": 7,
-	"./modules/loaderModule/__fields/loaderModule__fields.js": 6,
-	"./modules/loaderModule/loaderModule.js": 5
+	"./main/blocks/innerBlock/innerBlock.js": 0,
+	"./main/blocks/loader/loader.js": 3,
+	"./main/blocks/switchBox/switchBox.js": 4,
+	"./main/main.js": 10,
+	"./main/modules/eventBus/eventBus.js": 1,
+	"./main/modules/loaderModule/__fields/__controls/__fields/__downloadPercent/loaderModule__fields__controls__fields__downloadPercent.js": 11,
+	"./main/modules/loaderModule/__fields/__controls/__fields/loaderModule__fields__controls__fields.js": 8,
+	"./main/modules/loaderModule/__fields/__controls/loaderModule__fields__controls.js": 7,
+	"./main/modules/loaderModule/__fields/loaderModule__fields.js": 6,
+	"./main/modules/loaderModule/loaderModule.js": 5
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -447,7 +471,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 new class main {
 	constructor() {
-		const app = __WEBPACK_IMPORTED_MODULE_2__blocks_innerBlock_innerBlock__["default"].create('main', {}, 'app');
+		const app = __WEBPACK_IMPORTED_MODULE_2__blocks_innerBlock_innerBlock__["default"].create('main', {}, ['app']);
 		document.body.appendChild(app.el);
 		app.append(__WEBPACK_IMPORTED_MODULE_0__modules_loaderModule_loaderModule__["default"]);
 	}
@@ -455,12 +479,59 @@ new class main {
 
 /***/ }),
 /* 11 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__ = __webpack_require__(0);
+
+
+
+
+class DownloadPercent extends __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"] {
+	constructor(text) {
+		const downloadPercentContainer = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('div', {}, ['loaderModule__fields__controls__fields__downloadPercent']);
+		super(downloadPercentContainer.el);
+		this.lastValue = 0;
+		this.createDownloadPercent(text);
+	}
+
+	createDownloadPercent(text) {
+		const downloadPercentInput = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('input', { 'type': 'text', 'maxlength': '3' }, ['loaderModule__controls__downloadPercent__input']);
+
+		downloadPercentInput.el.onchange = () => {
+			let value = downloadPercentInput.el.value;
+			if (isNaN(value)) {
+				alert('Введите число');
+				downloadPercentInput.el.value = this.lastValue;
+			} else if (value > 100) {
+				value = 100;
+				downloadPercentInput.el.value = 100;
+			} else this.lastValue = value;
+		};
+
+		const downloadPercentText = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('div', {}, ['loaderModule__controls__downloadPercent__text'], text);
+
+		this.append(downloadPercentInput).append(downloadPercentText);
+	}
+}
+/* harmony export (immutable) */ __webpack_exports__["default"] = DownloadPercent;
+
+
+/***/ }),
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./blocks/_hidden/blocks_hidden.scss": 12,
-	"./blocks/loader/loader.scss": 13,
-	"./blocks/switchBox/switchBox.scss": 14
+	"./main/blocks/_hidden/blocks_hidden.scss": 13,
+	"./main/blocks/_no-display/blocks_no-display.scss": 39,
+	"./main/blocks/loader/loader.scss": 14,
+	"./main/blocks/switchBox/switchBox.scss": 15,
+	"./main/main.scss": 16,
+	"./main/modules/loaderModule/__fields/__controls/__fields/__downloadPercent/loaderModule__fields__controls__fields__downloadPercent.scss": 35,
+	"./main/modules/loaderModule/__fields/__controls/loaderModule__fields__controls.scss": 17,
+	"./main/modules/loaderModule/__fields/loaderModule__fields.scss": 18,
+	"./main/modules/loaderModule/loaderModule.scss": 19
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -476,32 +547,56 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 11;
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports) {
-
-throw new Error("Module build failed: Error: \"extract-text-webpack-plugin\" loader is used without the corresponding plugin, refer to https://github.com/webpack/extract-text-webpack-plugin for the usage example\n    at Object.pitch (/home/ed_grolsh/JavaScriptProjects/yandex/node_modules/extract-text-webpack-plugin/dist/loader.js:57:11)");
+webpackContext.id = 12;
 
 /***/ }),
 /* 13 */
 /***/ (function(module, exports) {
 
-throw new Error("Module build failed: Error: \"extract-text-webpack-plugin\" loader is used without the corresponding plugin, refer to https://github.com/webpack/extract-text-webpack-plugin for the usage example\n    at Object.pitch (/home/ed_grolsh/JavaScriptProjects/yandex/node_modules/extract-text-webpack-plugin/dist/loader.js:57:11)");
+// removed by extract-text-webpack-plugin
 
 /***/ }),
 /* 14 */
 /***/ (function(module, exports) {
 
-throw new Error("Module build failed: Error: \"extract-text-webpack-plugin\" loader is used without the corresponding plugin, refer to https://github.com/webpack/extract-text-webpack-plugin for the usage example\n    at Object.pitch (/home/ed_grolsh/JavaScriptProjects/yandex/node_modules/extract-text-webpack-plugin/dist/loader.js:57:11)");
+// removed by extract-text-webpack-plugin
 
 /***/ }),
 /* 15 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./blocks/switchBox/someCss.css": 16
+	"./main/modules/loaderModule/__fields/__controls/__fields/loaderModule__fields__controls__fields.css": 21
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -517,13 +612,42 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 15;
+webpackContext.id = 20;
 
 /***/ }),
-/* 16 */
+/* 21 */
 /***/ (function(module, exports) {
 
-throw new Error("Module build failed: Error: \"extract-text-webpack-plugin\" loader is used without the corresponding plugin, refer to https://github.com/webpack/extract-text-webpack-plugin for the usage example\n    at Object.pitch (/home/ed_grolsh/JavaScriptProjects/yandex/node_modules/extract-text-webpack-plugin/dist/loader.js:57:11)");
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 22 */,
+/* 23 */,
+/* 24 */,
+/* 25 */,
+/* 26 */,
+/* 27 */,
+/* 28 */,
+/* 29 */,
+/* 30 */,
+/* 31 */,
+/* 32 */,
+/* 33 */,
+/* 34 */,
+/* 35 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 36 */,
+/* 37 */,
+/* 38 */,
+/* 39 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
 
 /***/ })
 /******/ ]);
+//# sourceMappingURL=application.js.map
