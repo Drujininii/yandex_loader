@@ -222,9 +222,9 @@ function requireAll(r) {
   r.keys().forEach(r);
 }
 
-requireAll(__webpack_require__(9));
+requireAll(__webpack_require__(10));
 requireAll(__webpack_require__(12));
-requireAll(__webpack_require__(20));
+requireAll(__webpack_require__(22));
 
 /***/ }),
 /* 3 */
@@ -240,15 +240,35 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 class Loader extends __WEBPACK_IMPORTED_MODULE_0__innerBlock_innerBlock__["default"] {
-	constructor(...classes) {
+	constructor(classes) {
 		classes = classes || [];
 		classes.push('loader');
 		console.log('classes: ', classes);
 		const loader = __WEBPACK_IMPORTED_MODULE_0__innerBlock_innerBlock__["default"].create('div', {}, classes);
+
+		loader.el.innerHTML = `
+		<svg id='loader' width="128" height="128" xmlns="http://www.w3.org/2000/svg">
+		<circle id="loader__background-circle" 
+        	cx="64" cy="64" r="60"
+           fill="transparent" stroke="#ededea" stroke-width="8">
+        </circle>
+        <circle id="loader__active-circle" 
+        	cx="64" cy="64" r="60"
+           fill="transparent" stroke="#fdd94c" stroke-width="8"
+           stroke-dasharray="0 1" stroke-dashoffset="94">
+        </circle>
+    	</svg>`;
+
 		super(loader.el);
+
+		this.radius = 60;
+		this.ringLength = 2 * Math.PI * this.radius;
 
 		this.onHide();
 		this.onShow();
+		this.onAnimation();
+		this.onStopAnimation();
+		this.onChangeDownloadPercent();
 	}
 
 	onHide() {
@@ -260,6 +280,42 @@ class Loader extends __WEBPACK_IMPORTED_MODULE_0__innerBlock_innerBlock__["defau
 	onShow() {
 		__WEBPACK_IMPORTED_MODULE_1__modules_eventBus_eventBus__["default"].on('showLoader', () => {
 			this.show();
+		});
+	}
+
+	onChangeDownloadPercent() {
+		__WEBPACK_IMPORTED_MODULE_1__modules_eventBus_eventBus__["default"].on('changeDownloadPercent', percent => {
+			const downLoadData = this.calculateEndPointCoordinate(percent);
+			this.setEndPointCoordinates(downLoadData);
+		});
+	}
+
+	calculateEndPointCoordinate(percent) {
+		const newLeft = this.ringLength * percent / 100;
+		const newDone = this.ringLength - newLeft;
+
+		const downLoadData = {
+			left: newLeft,
+			done: newDone
+		};
+
+		return downLoadData;
+	}
+
+	setEndPointCoordinates(downLoadData) {
+		const newRingPercent = `${downLoadData.left} ${downLoadData.done}`;
+		document.getElementById('loader__active-circle').setAttribute('stroke-dasharray', newRingPercent);
+	}
+
+	onAnimation() {
+		__WEBPACK_IMPORTED_MODULE_1__modules_eventBus_eventBus__["default"].on('animateLoader', () => {
+			document.getElementById('loader').classList.add('loader_rotating');
+		});
+	}
+
+	onStopAnimation() {
+		__WEBPACK_IMPORTED_MODULE_1__modules_eventBus_eventBus__["default"].on('stopAnimateLoader', () => {
+			document.getElementById('loader').classList.remove('loader_rotating');
 		});
 	}
 }
@@ -324,7 +380,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony default export */ __webpack_exports__["default"] = (new class LoaderModule extends __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"] {
 	constructor() {
 		const loaderModule = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('div', {}, ['loaderModule']);
-		console.log('loader fields: ', __WEBPACK_IMPORTED_MODULE_1__fields_loaderModule_fields__["default"]);
 		for (let field in __WEBPACK_IMPORTED_MODULE_1__fields_loaderModule_fields__["default"]) loaderModule.append(__WEBPACK_IMPORTED_MODULE_1__fields_loaderModule_fields__["default"][field]);
 		super(loaderModule.el);
 	}
@@ -377,7 +432,8 @@ class loaderModule__controls extends __WEBPACK_IMPORTED_MODULE_1__blocks_innerBl
 
 	tapSwitchAnimation() {
 		__WEBPACK_IMPORTED_MODULE_0__fields_loaderModule_fields_controls_fields__["default"].switchAnimation.on('click', () => {
-			__WEBPACK_IMPORTED_MODULE_2__eventBus_eventBus__["default"].emit('switchLoaderAnimation');
+			const isAnimated = document.getElementById('switchAnimation').checked;
+			if (isAnimated) __WEBPACK_IMPORTED_MODULE_2__eventBus_eventBus__["default"].emit('animateLoader');else __WEBPACK_IMPORTED_MODULE_2__eventBus_eventBus__["default"].emit('stopAnimateLoader');
 		});
 	}
 
@@ -387,12 +443,6 @@ class loaderModule__controls extends __WEBPACK_IMPORTED_MODULE_1__blocks_innerBl
 			if (isHide) __WEBPACK_IMPORTED_MODULE_2__eventBus_eventBus__["default"].emit('hideLoader');else __WEBPACK_IMPORTED_MODULE_2__eventBus_eventBus__["default"].emit('showLoader');
 		});
 	}
-
-	// setDownloadPercent() {
-	// 	controls__fields.downloadPercent.on('onchange', () => {
-	// 		alert('new value');
-	// 	})
-	// }
 }
 /* harmony export (immutable) */ __webpack_exports__["default"] = loaderModule__controls;
 
@@ -404,20 +454,66 @@ class loaderModule__controls extends __WEBPACK_IMPORTED_MODULE_1__blocks_innerBl
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__blocks_switchBox_switchBox__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__downloadPercent_loaderModule_fields_controls_fields_downloadPercent__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__downloadPercent_loaderModule_fields_controls_fields_downloadPercent__ = __webpack_require__(9);
 
 
 
 const loaderModule__controls__fields = {
+	downloadPercent: new __WEBPACK_IMPORTED_MODULE_1__downloadPercent_loaderModule_fields_controls_fields_downloadPercent__["default"]('Value'),
 	switchAnimation: new __WEBPACK_IMPORTED_MODULE_0__blocks_switchBox_switchBox__["default"](['loaderModule__controls__switchBox', 'loaderModule__controls__switchAnimation'], 'Animate', 'switchAnimation'),
-	switchHide: new __WEBPACK_IMPORTED_MODULE_0__blocks_switchBox_switchBox__["default"](['loaderModule__controls__switchBox', 'loaderModule__controls__switchHide'], 'Hide', 'switchHide'),
-	downloadPercent: new __WEBPACK_IMPORTED_MODULE_1__downloadPercent_loaderModule_fields_controls_fields_downloadPercent__["default"]('Value')
+	switchHide: new __WEBPACK_IMPORTED_MODULE_0__blocks_switchBox_switchBox__["default"](['loaderModule__controls__switchBox', 'loaderModule__controls__switchHide'], 'Hide', 'switchHide')
+
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (loaderModule__controls__fields);
 
 /***/ }),
 /* 9 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__eventBus_eventBus__ = __webpack_require__(1);
+
+
+
+
+
+class DownloadPercent extends __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"] {
+	constructor(text) {
+		const downloadPercentContainer = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('div', {}, ['loaderModule__controls__downloadPercent__container']);
+		super(downloadPercentContainer.el);
+		this.lastValue = 0;
+		this.createDownloadPercent(text);
+	}
+
+	createDownloadPercent(text) {
+		const downloadPercentInput = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('input', { 'type': 'text', 'maxlength': '3', 'value': '0' }, ['loaderModule__controls__downloadPercent__input']);
+
+		downloadPercentInput.el.onchange = () => {
+			let value = downloadPercentInput.el.value;
+			if (isNaN(value)) {
+				alert('Введите число');
+				downloadPercentInput.el.value = this.lastValue;
+			} else if (value > 100) {
+				downloadPercentInput.el.value = 100;
+			} else {
+				this.lastValue = value;
+				__WEBPACK_IMPORTED_MODULE_1__eventBus_eventBus__["default"].emit('changeDownloadPercent', value);
+			}
+		};
+
+		const downloadPercentText = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('div', {}, ['loaderModule__controls__downloadPercent__text'], text);
+
+		this.append(downloadPercentInput).append(downloadPercentText);
+	}
+}
+/* harmony export (immutable) */ __webpack_exports__["default"] = DownloadPercent;
+
+
+/***/ }),
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
@@ -425,9 +521,9 @@ var map = {
 	"./main/blocks/innerBlock/innerBlock.js": 0,
 	"./main/blocks/loader/loader.js": 3,
 	"./main/blocks/switchBox/switchBox.js": 4,
-	"./main/main.js": 10,
+	"./main/main.js": 11,
 	"./main/modules/eventBus/eventBus.js": 1,
-	"./main/modules/loaderModule/__fields/__controls/__fields/__downloadPercent/loaderModule__fields__controls__fields__downloadPercent.js": 11,
+	"./main/modules/loaderModule/__fields/__controls/__fields/__downloadPercent/loaderModule__fields__controls__fields__downloadPercent.js": 9,
 	"./main/modules/loaderModule/__fields/__controls/__fields/loaderModule__fields__controls__fields.js": 8,
 	"./main/modules/loaderModule/__fields/__controls/loaderModule__fields__controls.js": 7,
 	"./main/modules/loaderModule/__fields/loaderModule__fields.js": 6,
@@ -447,10 +543,10 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 9;
+webpackContext.id = 10;
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -478,60 +574,21 @@ new class main {
 }();
 
 /***/ }),
-/* 11 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__ = __webpack_require__(0);
-
-
-
-
-class DownloadPercent extends __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"] {
-	constructor(text) {
-		const downloadPercentContainer = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('div', {}, ['loaderModule__fields__controls__fields__downloadPercent']);
-		super(downloadPercentContainer.el);
-		this.lastValue = 0;
-		this.createDownloadPercent(text);
-	}
-
-	createDownloadPercent(text) {
-		const downloadPercentInput = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('input', { 'type': 'text', 'maxlength': '3' }, ['loaderModule__controls__downloadPercent__input']);
-
-		downloadPercentInput.el.onchange = () => {
-			let value = downloadPercentInput.el.value;
-			if (isNaN(value)) {
-				alert('Введите число');
-				downloadPercentInput.el.value = this.lastValue;
-			} else if (value > 100) {
-				value = 100;
-				downloadPercentInput.el.value = 100;
-			} else this.lastValue = value;
-		};
-
-		const downloadPercentText = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('div', {}, ['loaderModule__controls__downloadPercent__text'], text);
-
-		this.append(downloadPercentInput).append(downloadPercentText);
-	}
-}
-/* harmony export (immutable) */ __webpack_exports__["default"] = DownloadPercent;
-
-
-/***/ }),
 /* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
 	"./main/blocks/_hidden/blocks_hidden.scss": 13,
-	"./main/blocks/_no-display/blocks_no-display.scss": 39,
-	"./main/blocks/loader/loader.scss": 14,
-	"./main/blocks/switchBox/switchBox.scss": 15,
-	"./main/main.scss": 16,
-	"./main/modules/loaderModule/__fields/__controls/__fields/__downloadPercent/loaderModule__fields__controls__fields__downloadPercent.scss": 35,
-	"./main/modules/loaderModule/__fields/__controls/loaderModule__fields__controls.scss": 17,
-	"./main/modules/loaderModule/__fields/loaderModule__fields.scss": 18,
-	"./main/modules/loaderModule/loaderModule.scss": 19
+	"./main/blocks/_no-display/blocks_no-display.scss": 14,
+	"./main/blocks/loader/_rotating/loader_rotating.scss": 39,
+	"./main/blocks/loader/loader.scss": 15,
+	"./main/blocks/switchBox/switchBox.scss": 16,
+	"./main/main.scss": 17,
+	"./main/modules/loaderModule/__fields/__controls/__fields/__downloadPercent/loaderModule__fields__controls__fields__downloadPercent.scss": 18,
+	"./main/modules/loaderModule/__fields/__controls/loaderModule__fields__controls.scss": 19,
+	"./main/modules/loaderModule/__fields/__loader/loaderModule__fields__loader.scss": 41,
+	"./main/modules/loaderModule/__fields/loaderModule__fields.scss": 20,
+	"./main/modules/loaderModule/loaderModule.scss": 21
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -593,10 +650,22 @@ webpackContext.id = 12;
 
 /***/ }),
 /* 20 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./main/modules/loaderModule/__fields/__controls/__fields/loaderModule__fields__controls__fields.css": 21
+	"./main/modules/loaderModule/__fields/__controls/__fields/loaderModule__fields__controls__fields.css": 23
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -612,17 +681,15 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 20;
+webpackContext.id = 22;
 
 /***/ }),
-/* 21 */
+/* 23 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ }),
-/* 22 */,
-/* 23 */,
 /* 24 */,
 /* 25 */,
 /* 26 */,
@@ -634,16 +701,18 @@ webpackContext.id = 20;
 /* 32 */,
 /* 33 */,
 /* 34 */,
-/* 35 */
+/* 35 */,
+/* 36 */,
+/* 37 */,
+/* 38 */,
+/* 39 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ }),
-/* 36 */,
-/* 37 */,
-/* 38 */,
-/* 39 */
+/* 40 */,
+/* 41 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin

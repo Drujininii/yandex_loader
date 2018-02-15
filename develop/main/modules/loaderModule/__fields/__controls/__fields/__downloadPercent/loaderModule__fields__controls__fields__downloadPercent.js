@@ -1,11 +1,12 @@
 'use strict';
 
 import InnerBlock from '../../../../../../blocks/innerBlock/innerBlock';
+import eventBus from '../../../../../eventBus/eventBus';
 
 export default class DownloadPercent extends InnerBlock {
 	constructor(text) {
 		const downloadPercentContainer = InnerBlock.create('div', {},
-			['loaderModule__fields__controls__fields__downloadPercent']);
+			['loaderModule__controls__downloadPercent__container']);
 		super(downloadPercentContainer.el);
 		this.lastValue = 0;
 		this.createDownloadPercent(text);
@@ -13,7 +14,7 @@ export default class DownloadPercent extends InnerBlock {
 
 	createDownloadPercent(text) {
 		const downloadPercentInput = InnerBlock.create('input',
-			{'type': 'text', 'maxlength': '3'},
+			{'type': 'text', 'maxlength': '3', 'value': '0'},
 			['loaderModule__controls__downloadPercent__input']);
 
 		downloadPercentInput.el.onchange = () => {
@@ -23,11 +24,12 @@ export default class DownloadPercent extends InnerBlock {
 				downloadPercentInput.el.value = this.lastValue;
 			}
 			else if (value > 100) {
-				value = 100;
 				downloadPercentInput.el.value = 100;
 			}
-			else
+			else {
 				this.lastValue = value;
+				eventBus.emit('changeDownloadPercent', value);
+			}
 		};
 
 		const downloadPercentText = InnerBlock.create('div', {},

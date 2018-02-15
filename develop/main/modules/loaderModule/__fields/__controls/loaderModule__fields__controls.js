@@ -18,7 +18,11 @@ export default class loaderModule__controls extends InnerBlock {
 
 	tapSwitchAnimation() {
 		controls__fields.switchAnimation.on('click', () => {
-			eventBus.emit('switchLoaderAnimation');
+			const isAnimated = document.getElementById('switchAnimation').checked;
+			if (isAnimated)
+				eventBus.emit('animateLoader');
+			else
+				eventBus.emit('stopAnimateLoader');
 		})
 	}
 
@@ -31,10 +35,4 @@ export default class loaderModule__controls extends InnerBlock {
 				eventBus.emit('showLoader');
 		})
 	}
-
-	// setDownloadPercent() {
-	// 	controls__fields.downloadPercent.on('onchange', () => {
-	// 		alert('new value');
-	// 	})
-	// }
 }

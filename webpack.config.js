@@ -40,6 +40,10 @@ module.exports = {
 			})
 		},
 			{
+				test: /\.svg$/,
+				loader: 'svg-inline-loader'
+			},
+			{
 				test: /\.(ttf)$/,
 				loader: 'url-loader?limit=30000&name=./[name].[ext]',
 			},
