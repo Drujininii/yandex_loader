@@ -134,6 +134,18 @@ body {
 :focus::-webkit-input-placeholder {
   opacity: 0;
   transform: translate(0, -12px); }
+
+:focus::-moz-placeholder {
+  opacity: 0;
+  transform: translate(0, -12px); }
+
+:focus:-moz-placeholder {
+  opacity: 0;
+  transform: translate(0, -12px); }
+
+:focus:-ms-input-placeholder {
+  opacity: 0;
+  transform: translate(0, -12px); }
 .loaderModule__controls {
   transform: scale(0.8); }
 .loaderModule__fields {
@@ -159,8 +171,5 @@ body {
     flex-direction: row;
     height: 300px;
     width: 350px; } }
-.loaderModule__controls__downloadPercent {
-
-}
 
 /*# sourceMappingURL=application.css.map*/
