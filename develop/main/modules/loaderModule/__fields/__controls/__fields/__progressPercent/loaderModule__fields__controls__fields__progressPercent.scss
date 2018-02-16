@@ -76,3 +76,18 @@ $placeholderEndOpacity: 0;
   opacity: $placeholderEndOpacity;
   transform: translate(0, -12px);
 }
+
+:focus::-moz-placeholder {
+  opacity: $placeholderEndOpacity;
+  transform: translate(0, -12px);
+}
+
+:focus:-moz-placeholder {
+  opacity: $placeholderEndOpacity;
+  transform: translate(0, -12px);
+}
+
+:focus:-ms-input-placeholder {
+  opacity: $placeholderEndOpacity;
+  transform: translate(0, -12px);
+}
