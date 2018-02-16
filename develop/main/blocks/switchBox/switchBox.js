@@ -2,7 +2,18 @@
 
 import InnerBlock from '../innerBlock/innerBlock';
 
+
+/**
+ * Basic switch button module
+ * @module SwitchButton
+ */
 export default class SwitchButton extends InnerBlock {
+	/**
+	 * @constructor
+	 * @param {string []} classes
+	 * @param {string} name
+	 * @param {number} id
+	 */
 	constructor(classes, name, id) {
 		classes = classes || [];
 		classes.push('switchBoxContainer');
@@ -11,6 +22,12 @@ export default class SwitchButton extends InnerBlock {
 		this.createSwitchBox(name, id);
 	}
 
+
+	/**
+	 * Create switch box with name and id
+	 * @param {string} name
+	 * @param {number} id
+	 */
 	createSwitchBox(name, id) {
 		const switchBoxInput = InnerBlock.create('input', {
 				'id': `${id}`,

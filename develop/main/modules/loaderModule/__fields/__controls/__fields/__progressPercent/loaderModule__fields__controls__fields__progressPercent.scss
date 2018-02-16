@@ -1,0 +1,78 @@
+.loaderModule__controls__progressPercent__container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    width: auto;
+    margin-bottom: 5px;
+}
+
+.loaderModule__controls__progressPercent__text {
+  display: inline;
+  padding-left: 10px;
+}
+
+.loaderModule__controls__progressPercent__input {
+  text-align: center;
+  display: inline-block;
+  cursor: pointer;
+  height: 30px;
+  width: 60px;
+  font-size: 20px;
+  overflow: hidden;
+  border-radius: 20px;
+  border: 2px solid #969696;
+  padding: 0;
+  outline: none;
+}
+
+/*штуки стилей плейсхолдеров*/
+::-webkit-input-placeholder {
+  color: black;
+  font-size: 20px;
+}
+::-moz-placeholder {
+  color: black;
+  font-weight: bold;
+}
+/* Firefox 19+ */
+
+:-moz-placeholder {
+  color: black;
+  font-weight: bold;
+}
+/* Firefox 18- */
+
+:-ms-input-placeholder {
+  color: black;
+  font-weight: bold;
+}
+
+
+$transTime: 0.4s;
+$placeholderStartOpacity: 1;
+$placeholderEndOpacity: 0;
+::-webkit-input-placeholder {
+  opacity: $placeholderStartOpacity;
+  transition: all $transTime ease;
+}
+
+::-moz-placeholder {
+  opacity: $placeholderStartOpacity;
+  transition: opacity $transTime ease;
+}
+
+:-moz-placeholder {
+  opacity: $placeholderStartOpacity;
+  transition: opacity $transTime ease;
+}
+
+:-ms-input-placeholder {
+  opacity: $placeholderStartOpacity;
+  transition: opacity $transTime ease;
+}
+
+:focus::-webkit-input-placeholder {
+  opacity: $placeholderEndOpacity;
+  transform: translate(0, -12px);
+}

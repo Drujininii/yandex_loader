@@ -45,7 +45,7 @@ module.exports = {
 			},
 			{
 				test: /\.(ttf)$/,
-				loader: 'url-loader?limit=30000&name=./[name].[ext]',
+				loader: 'url-loader',
 			},
 		],
 	},

@@ -4,7 +4,15 @@ import controls__fields from './__fields/loaderModule__fields__controls__fields'
 import InnerBlock from '../../../../blocks/innerBlock/innerBlock';
 import eventBus from '../../../eventBus/eventBus';
 
+
+/**
+ * Assembled controls of the progress
+ * @module loaderModule__controls
+ */
 export default class loaderModule__controls extends InnerBlock {
+	/**
+	 * @constructor
+	 */
 	constructor() {
 		const controls = InnerBlock.create('div', {}, ['loaderModule__controls', 'loaderModule__fields']);
 		for (let field in controls__fields) {
@@ -16,6 +24,10 @@ export default class loaderModule__controls extends InnerBlock {
 		this.tapSwitchHide();
 	}
 
+
+	/**
+	 * Handler to animation switch button
+	 */
 	tapSwitchAnimation() {
 		controls__fields.switchAnimation.on('click', () => {
 			const isAnimated = document.getElementById('switchAnimation').checked;
@@ -26,6 +38,10 @@ export default class loaderModule__controls extends InnerBlock {
 		})
 	}
 
+
+	/**
+	 * Handler to hide switch button
+	 */
 	tapSwitchHide() {
 		controls__fields.switchHide.on('click', () => {
 			const isHide = document.getElementById('switchHide').checked;

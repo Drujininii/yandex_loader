@@ -77,8 +77,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 class Block {
 	/**
-  * @param {HTMLElement} el - корневой элемент блока
   * @constructor
+  * @param {HTMLElement} el - корневой элемент блока
   */
 	constructor(el) {
 		this.el = el;
@@ -182,23 +182,47 @@ class Block {
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
+/**
+ * Singleton module eventBus. EventBus handle all internal events in this project
+ * @module eventBus
+ */
+
 /* harmony default export */ __webpack_exports__["default"] = (new class eventBus {
+	/**
+  * @constructor
+  */
 	constructor() {
 		this.listeners = {};
 	}
 
+	/**
+  * Subscribe to an event
+  * @param {string} eventName
+  * @param {function} listener
+  * @returns {*}
+  */
 	on(eventName, listener) {
 		this.listeners[eventName] = this.listeners[eventName] || [];
 		this.listeners[eventName].push(listener);
 		return listener;
 	}
 
+	/**
+  * Unsubscribe from an event
+  * @param {string} eventName
+  * @param {function} listener
+  */
 	off(eventName, listener) {
 		this.listeners[eventName] = this.listeners[eventName] || [];
 		const listenerIdx = this.listeners[eventName].indexOf(listener);
 		this.listeners[eventName].split(listenerIdx, 1);
 	}
 
+	/**
+  * Emit event
+  * @param {string} eventName
+  * @param {Object} data
+  */
 	emit(eventName, data) {
 		this.listeners[eventName].forEach(listener => {
 			listener(data);
@@ -224,7 +248,7 @@ function requireAll(r) {
 
 requireAll(__webpack_require__(10));
 requireAll(__webpack_require__(12));
-requireAll(__webpack_require__(22));
+requireAll(__webpack_require__(23));
 
 /***/ }),
 /* 3 */
@@ -239,15 +263,22 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
+/**
+ * Базовый класс лоадера
+ * @module Block
+ */
 class Loader extends __WEBPACK_IMPORTED_MODULE_0__innerBlock_innerBlock__["default"] {
+	/**
+  * @constructor
+  * @param {string[]} classes
+  */
 	constructor(classes) {
 		classes = classes || [];
 		classes.push('loader');
-		console.log('classes: ', classes);
 		const loader = __WEBPACK_IMPORTED_MODULE_0__innerBlock_innerBlock__["default"].create('div', {}, classes);
 
 		loader.el.innerHTML = `
-		<svg id='loader' width="128" height="128" xmlns="http://www.w3.org/2000/svg">
+		<svg id='progress' width="128" height="128" xmlns="http://www.w3.org/2000/svg">
 		<circle id="loader__background-circle" 
         	cx="64" cy="64" r="60"
            fill="transparent" stroke="#ededea" stroke-width="8">
@@ -268,55 +299,108 @@ class Loader extends __WEBPACK_IMPORTED_MODULE_0__innerBlock_innerBlock__["defau
 		this.onShow();
 		this.onAnimation();
 		this.onStopAnimation();
-		this.onChangeDownloadPercent();
+		this.onChangeProgressPercent();
 	}
 
+	/**
+  * Handler of hide event
+  */
 	onHide() {
 		__WEBPACK_IMPORTED_MODULE_1__modules_eventBus_eventBus__["default"].on('hideLoader', () => {
-			this.hide();
+			this.setMod('hidden');
 		});
 	}
 
+	/**
+  * Handler of show event
+  */
 	onShow() {
 		__WEBPACK_IMPORTED_MODULE_1__modules_eventBus_eventBus__["default"].on('showLoader', () => {
-			this.show();
+			this.setMod('normal');
 		});
 	}
 
-	onChangeDownloadPercent() {
-		__WEBPACK_IMPORTED_MODULE_1__modules_eventBus_eventBus__["default"].on('changeDownloadPercent', percent => {
-			const downLoadData = this.calculateEndPointCoordinate(percent);
-			this.setEndPointCoordinates(downLoadData);
+	/**
+  * Handler of change progress percent event
+  */
+	onChangeProgressPercent() {
+		__WEBPACK_IMPORTED_MODULE_1__modules_eventBus_eventBus__["default"].on('changeProgressPercent', percent => {
+			this.setValue(percent);
 		});
 	}
 
-	calculateEndPointCoordinate(percent) {
+	/**
+  * Set current progress state
+  * @param {number} percent
+  */
+	setValue(percent) {
+		const progressData = this.calculateProgressState(percent);
+		this.setProgressState(progressData);
+	}
+
+	/**
+  * Calculate
+  * @param {number} percent
+  * @returns {{left: number, done: number}}
+  */
+	calculateProgressState(percent) {
 		const newLeft = this.ringLength * percent / 100;
 		const newDone = this.ringLength - newLeft;
 
-		const downLoadData = {
+		const progressData = {
 			left: newLeft,
 			done: newDone
 		};
 
-		return downLoadData;
+		return progressData;
 	}
 
-	setEndPointCoordinates(downLoadData) {
-		const newRingPercent = `${downLoadData.left} ${downLoadData.done}`;
+	/**
+  * Set progress state by progress data
+  * @param progressData
+  */
+	setProgressState(progressData) {
+		const newRingPercent = `${progressData.left} ${progressData.done}`;
 		document.getElementById('loader__active-circle').setAttribute('stroke-dasharray', newRingPercent);
 	}
 
+	/**
+  * Handler of animation on event
+  */
 	onAnimation() {
 		__WEBPACK_IMPORTED_MODULE_1__modules_eventBus_eventBus__["default"].on('animateLoader', () => {
-			document.getElementById('loader').classList.add('loader_rotating');
+			this.setMod('animated', 'yes');
 		});
 	}
 
+	/**
+  * Handler of animation stop event
+  */
 	onStopAnimation() {
 		__WEBPACK_IMPORTED_MODULE_1__modules_eventBus_eventBus__["default"].on('stopAnimateLoader', () => {
-			document.getElementById('loader').classList.remove('loader_rotating');
+			this.setMod('animated', '');
 		});
+	}
+
+	/**
+  * Set mod to loader
+  * @param {string} mod - animated or normal or hidden
+  * @param {string} state - only for animated
+  */
+	setMod(mod, state) {
+		switch (mod) {
+			case 'animated':
+				if (state === 'yes') document.getElementById('progress').classList.add('loader_rotating');else document.getElementById('progress').classList.remove('loader_rotating');
+				break;
+			case 'normal':
+				this.show();
+				break;
+			case 'hidden':
+				this.hide();
+				break;
+			default:
+				break;
+		}
 	}
 }
 /* harmony export (immutable) */ __webpack_exports__["default"] = Loader;
@@ -333,7 +417,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
+/**
+ * Basic switch button module
+ * @module SwitchButton
+ */
 class SwitchButton extends __WEBPACK_IMPORTED_MODULE_0__innerBlock_innerBlock__["default"] {
+	/**
+  * @constructor
+  * @param {string []} classes
+  * @param {string} name
+  * @param {number} id
+  */
 	constructor(classes, name, id) {
 		classes = classes || [];
 		classes.push('switchBoxContainer');
@@ -342,6 +436,11 @@ class SwitchButton extends __WEBPACK_IMPORTED_MODULE_0__innerBlock_innerBlock__[
 		this.createSwitchBox(name, id);
 	}
 
+	/**
+  * Create switch box with name and id
+  * @param {string} name
+  * @param {number} id
+  */
 	createSwitchBox(name, id) {
 		const switchBoxInput = __WEBPACK_IMPORTED_MODULE_0__innerBlock_innerBlock__["default"].create('input', {
 			'id': `${id}`,
@@ -377,7 +476,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
+/**
+ * Assembled progress with controls buttons
+ * @module LoaderModule
+ */
 /* harmony default export */ __webpack_exports__["default"] = (new class LoaderModule extends __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"] {
+	/**
+  * @constructor
+  */
 	constructor() {
 		const loaderModule = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('div', {}, ['loaderModule']);
 		for (let field in __WEBPACK_IMPORTED_MODULE_1__fields_loaderModule_fields__["default"]) loaderModule.append(__WEBPACK_IMPORTED_MODULE_1__fields_loaderModule_fields__["default"][field]);
@@ -391,14 +497,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__blocks_loader_loader__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__blocks_progress_progress__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__controls_loaderModule_fields_controls__ = __webpack_require__(7);
 
 
 
+/**
+ * Loader module fields
+ * @type {{progress: Loader, controls: loaderModule__controls}}
+ */
 const loaderModule__fields = {
-	loader: new __WEBPACK_IMPORTED_MODULE_0__blocks_loader_loader__["default"](['loaderModule__loader', 'loaderModule__fields']),
-	controls: new __WEBPACK_IMPORTED_MODULE_1__controls_loaderModule_fields_controls__["default"]()
+  loader: new __WEBPACK_IMPORTED_MODULE_0__blocks_progress_progress__["default"](['loaderModule__loader', 'loaderModule__fields']),
+  controls: new __WEBPACK_IMPORTED_MODULE_1__controls_loaderModule_fields_controls__["default"]()
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (loaderModule__fields);
@@ -418,7 +528,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
+/**
+ * Assembled controls of the progress
+ * @module loaderModule__controls
+ */
 class loaderModule__controls extends __WEBPACK_IMPORTED_MODULE_1__blocks_innerBlock_innerBlock__["default"] {
+	/**
+  * @constructor
+  */
 	constructor() {
 		const controls = __WEBPACK_IMPORTED_MODULE_1__blocks_innerBlock_innerBlock__["default"].create('div', {}, ['loaderModule__controls', 'loaderModule__fields']);
 		for (let field in __WEBPACK_IMPORTED_MODULE_0__fields_loaderModule_fields_controls_fields__["default"]) {
@@ -430,6 +547,9 @@ class loaderModule__controls extends __WEBPACK_IMPORTED_MODULE_1__blocks_innerBl
 		this.tapSwitchHide();
 	}
 
+	/**
+  * Handler to animation switch button
+  */
 	tapSwitchAnimation() {
 		__WEBPACK_IMPORTED_MODULE_0__fields_loaderModule_fields_controls_fields__["default"].switchAnimation.on('click', () => {
 			const isAnimated = document.getElementById('switchAnimation').checked;
@@ -437,6 +557,9 @@ class loaderModule__controls extends __WEBPACK_IMPORTED_MODULE_1__blocks_innerBl
 		});
 	}
 
+	/**
+  * Handler to hide switch button
+  */
 	tapSwitchHide() {
 		__WEBPACK_IMPORTED_MODULE_0__fields_loaderModule_fields_controls_fields__["default"].switchHide.on('click', () => {
 			const isHide = document.getElementById('switchHide').checked;
@@ -454,12 +577,16 @@ class loaderModule__controls extends __WEBPACK_IMPORTED_MODULE_1__blocks_innerBl
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__blocks_switchBox_switchBox__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__downloadPercent_loaderModule_fields_controls_fields_downloadPercent__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__progressPercent_loaderModule_fields_controls_fields_progressPercent__ = __webpack_require__(9);
 
 
 
+/**
+ * Progress's control's fields
+ * @type {{downloadPercent: ProgressPercent, switchAnimation: SwitchButton, switchHide: SwitchButton}}
+ */
 const loaderModule__controls__fields = {
-	downloadPercent: new __WEBPACK_IMPORTED_MODULE_1__downloadPercent_loaderModule_fields_controls_fields_downloadPercent__["default"]('Value'),
+	downloadPercent: new __WEBPACK_IMPORTED_MODULE_1__progressPercent_loaderModule_fields_controls_fields_progressPercent__["default"]('Value'),
 	switchAnimation: new __WEBPACK_IMPORTED_MODULE_0__blocks_switchBox_switchBox__["default"](['loaderModule__controls__switchBox', 'loaderModule__controls__switchAnimation'], 'Animate', 'switchAnimation'),
 	switchHide: new __WEBPACK_IMPORTED_MODULE_0__blocks_switchBox_switchBox__["default"](['loaderModule__controls__switchBox', 'loaderModule__controls__switchHide'], 'Hide', 'switchHide')
 
@@ -480,36 +607,56 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-class DownloadPercent extends __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"] {
+/**
+ * Progress text input module. You can manually set percent in this area to change progress state
+ * @module ProgressPercent
+ */
+class ProgressPercent extends __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"] {
+	/**
+  * @constructor
+  * @param {string} text
+  */
 	constructor(text) {
-		const downloadPercentContainer = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('div', {}, ['loaderModule__controls__downloadPercent__container']);
-		super(downloadPercentContainer.el);
+		const progressPercentContainer = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('div', {}, ['loaderModule__controls__progressPercent__container']);
+		super(progressPercentContainer.el);
 		this.lastValue = 0;
-		this.createDownloadPercent(text);
+		this.createProgressPercent(text);
 	}
 
-	createDownloadPercent(text) {
-		const downloadPercentInput = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('input', { 'type': 'text', 'maxlength': '3', 'value': '0' }, ['loaderModule__controls__downloadPercent__input']);
+	/**
+  * Create input field, description and set handler to changing value
+  * @param {string} text
+  */
+	createProgressPercent(text) {
+		this.progressPercentInput = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('input', { 'type': 'text', 'maxlength': '3', 'placeholder': '0' }, ['loaderModule__controls__progressPercent__input']);
 
-		downloadPercentInput.el.onchange = () => {
-			let value = downloadPercentInput.el.value;
+		this.onChange();
+
+		this.downloadPercentText = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('div', {}, ['loaderModule__controls__progressPercent__text'], text);
+
+		this.append(this.progressPercentInput).append(this.downloadPercentText);
+	}
+
+	/**
+  * Change percent handler
+  */
+	onChange() {
+		this.progressPercentInput.el.onchange = () => {
+			let value = this.progressPercentInput.el.value;
 			if (isNaN(value)) {
 				alert('Введите число');
-				downloadPercentInput.el.value = this.lastValue;
 			} else if (value > 100) {
-				downloadPercentInput.el.value = 100;
+				this.lastValue = 100;
 			} else {
 				this.lastValue = value;
-				__WEBPACK_IMPORTED_MODULE_1__eventBus_eventBus__["default"].emit('changeDownloadPercent', value);
+				__WEBPACK_IMPORTED_MODULE_1__eventBus_eventBus__["default"].emit('changeProgressPercent', value);
 			}
+			this.progressPercentInput.el.value = '';
+			this.progressPercentInput.el.placeholder = this.lastValue;
 		};
-
-		const downloadPercentText = __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_innerBlock__["default"].create('div', {}, ['loaderModule__controls__downloadPercent__text'], text);
-
-		this.append(downloadPercentInput).append(downloadPercentText);
 	}
 }
-/* harmony export (immutable) */ __webpack_exports__["default"] = DownloadPercent;
+/* harmony export (immutable) */ __webpack_exports__["default"] = ProgressPercent;
 
 
 /***/ }),
@@ -519,11 +666,11 @@ class DownloadPercent extends __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_inn
 var map = {
 	"./include.js": 2,
 	"./main/blocks/innerBlock/innerBlock.js": 0,
-	"./main/blocks/loader/loader.js": 3,
+	"./main/blocks/progress/progress.js": 3,
 	"./main/blocks/switchBox/switchBox.js": 4,
 	"./main/main.js": 11,
 	"./main/modules/eventBus/eventBus.js": 1,
-	"./main/modules/loaderModule/__fields/__controls/__fields/__downloadPercent/loaderModule__fields__controls__fields__downloadPercent.js": 9,
+	"./main/modules/loaderModule/__fields/__controls/__fields/__progressPercent/loaderModule__fields__controls__fields__progressPercent.js": 9,
 	"./main/modules/loaderModule/__fields/__controls/__fields/loaderModule__fields__controls__fields.js": 8,
 	"./main/modules/loaderModule/__fields/__controls/loaderModule__fields__controls.js": 7,
 	"./main/modules/loaderModule/__fields/loaderModule__fields.js": 6,
@@ -565,7 +712,14 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
+/**
+ * Singleton application module
+ */
 new class main {
+	/**
+  * Create application
+  * @constructor
+  */
 	constructor() {
 		const app = __WEBPACK_IMPORTED_MODULE_2__blocks_innerBlock_innerBlock__["default"].create('main', {}, ['app']);
 		document.body.appendChild(app.el);
@@ -580,15 +734,14 @@ new class main {
 var map = {
 	"./main/blocks/_hidden/blocks_hidden.scss": 13,
 	"./main/blocks/_no-display/blocks_no-display.scss": 14,
-	"./main/blocks/loader/_rotating/loader_rotating.scss": 39,
-	"./main/blocks/loader/loader.scss": 15,
-	"./main/blocks/switchBox/switchBox.scss": 16,
-	"./main/main.scss": 17,
-	"./main/modules/loaderModule/__fields/__controls/__fields/__downloadPercent/loaderModule__fields__controls__fields__downloadPercent.scss": 18,
-	"./main/modules/loaderModule/__fields/__controls/loaderModule__fields__controls.scss": 19,
-	"./main/modules/loaderModule/__fields/__loader/loaderModule__fields__loader.scss": 41,
-	"./main/modules/loaderModule/__fields/loaderModule__fields.scss": 20,
-	"./main/modules/loaderModule/loaderModule.scss": 21
+	"./main/blocks/progress/_rotating/loader_rotating.scss": 15,
+	"./main/blocks/progress/progress.scss": 16,
+	"./main/blocks/switchBox/switchBox.scss": 17,
+	"./main/main.scss": 18,
+	"./main/modules/loaderModule/__fields/__controls/__fields/__progressPercent/loaderModule__fields__controls__fields__progressPercent.scss": 19,
+	"./main/modules/loaderModule/__fields/__controls/loaderModule__fields__controls.scss": 20,
+	"./main/modules/loaderModule/__fields/loaderModule__fields.scss": 21,
+	"./main/modules/loaderModule/loaderModule.scss": 22
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -662,10 +815,16 @@ webpackContext.id = 12;
 
 /***/ }),
 /* 22 */
+/***/ (function(module, exports) {
+
+// removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./main/modules/loaderModule/__fields/__controls/__fields/loaderModule__fields__controls__fields.css": 23
+	"./main/modules/loaderModule/__fields/__controls/__fields/loaderModule__fields__controls__fields.css": 24
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -681,38 +840,10 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 22;
+webpackContext.id = 23;
 
 /***/ }),
-/* 23 */
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-/* 24 */,
-/* 25 */,
-/* 26 */,
-/* 27 */,
-/* 28 */,
-/* 29 */,
-/* 30 */,
-/* 31 */,
-/* 32 */,
-/* 33 */,
-/* 34 */,
-/* 35 */,
-/* 36 */,
-/* 37 */,
-/* 38 */,
-/* 39 */
-/***/ (function(module, exports) {
-
-// removed by extract-text-webpack-plugin
-
-/***/ }),
-/* 40 */,
-/* 41 */
+/* 24 */
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin

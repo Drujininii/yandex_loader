@@ -5,8 +5,8 @@
  */
 export default class Block {
 	/**
-	 * @param {HTMLElement} el - корневой элемент блока
 	 * @constructor
+	 * @param {HTMLElement} el - корневой элемент блока
 	 */
 	constructor(el) {
 		this.el = el;
