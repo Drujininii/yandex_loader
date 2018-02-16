@@ -644,12 +644,13 @@ class ProgressPercent extends __WEBPACK_IMPORTED_MODULE_0__blocks_innerBlock_inn
 		this.progressPercentInput.el.onchange = () => {
 			let value = this.progressPercentInput.el.value;
 			if (isNaN(value)) {
-				alert('Введите число');
+				alert('Введите число'); //ну да, согласен. представьте, что здесь модальное окно
 			} else if (value > 100) {
 				this.lastValue = 100;
+				__WEBPACK_IMPORTED_MODULE_1__eventBus_eventBus__["default"].emit('changeProgressPercent', this.lastValue);
 			} else {
 				this.lastValue = value;
-				__WEBPACK_IMPORTED_MODULE_1__eventBus_eventBus__["default"].emit('changeProgressPercent', value);
+				__WEBPACK_IMPORTED_MODULE_1__eventBus_eventBus__["default"].emit('changeProgressPercent', this.lastValue);
 			}
 			this.progressPercentInput.el.value = '';
 			this.progressPercentInput.el.placeholder = this.lastValue;

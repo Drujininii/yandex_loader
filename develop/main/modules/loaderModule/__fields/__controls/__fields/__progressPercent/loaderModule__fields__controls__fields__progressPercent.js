@@ -48,14 +48,15 @@ export default class ProgressPercent extends InnerBlock {
 		this.progressPercentInput.el.onchange = () => {
 			let value = this.progressPercentInput.el.value;
 			if (isNaN(value)) {
-				alert('Введите число');
+				alert('Введите число');//ну да, согласен. представьте, что здесь модальное окно
 			}
 			else if (value > 100) {
 				this.lastValue = 100;
+				eventBus.emit('changeProgressPercent', this.lastValue);
 			}
 			else {
 				this.lastValue = value;
-				eventBus.emit('changeProgressPercent', value);
+				eventBus.emit('changeProgressPercent', this.lastValue);
 			}
 			this.progressPercentInput.el.value = '';
 			this.progressPercentInput.el.placeholder = this.lastValue;
